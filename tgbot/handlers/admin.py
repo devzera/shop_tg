@@ -4,7 +4,7 @@ from aiogram.dispatcher.filters import Text
 from aiogram.types import CallbackQuery, Message
 
 from tgbot.keyboards.inline import admin_menu_ikb
-from tgbot.misc.states import ProductFSM
+from tgbot.misc.states import ProductFSM, TasteFSM
 from tgbot.models.sqlite import db_create_product
 
 
@@ -20,8 +20,10 @@ async def admin_start(message: Message):
 async def create_product(callback: CallbackQuery):
     await ProductFSM.title.set()
     await callback.message.answer(
-        'Введите название:',
+        'Введите название:'
+        '\nПример: Yuoto Bubble',
     )
+    await callback.answer()
 
 
 async def set_product_title(message: Message, state: FSMContext):
@@ -29,16 +31,8 @@ async def set_product_title(message: Message, state: FSMContext):
         data['title'] = message.text
     await ProductFSM.next()
     await message.answer(
-        'Введите количество затяжек:',
-    )
-
-
-async def set_product_puffs(message: Message, state: FSMContext):
-    async with state.proxy() as data:
-        data['puffs'] = message.text
-    await ProductFSM.next()
-    await message.answer(
-        'Введите цену:',
+        'Введите цену:'
+        '\nПример: 870',
     )
 
 
@@ -47,16 +41,19 @@ async def set_product_price(message: Message, state: FSMContext):
         data['price'] = message.text
     await ProductFSM.next()
     await message.answer(
-        'Введите количество на складе:',
+        'Введите количество затяжек:'
+        '\nПример: 1200',
     )
 
 
-async def set_product_amount(message: Message, state: FSMContext):
+async def set_product_puffs(message: Message, state: FSMContext):
     async with state.proxy() as data:
-        data['amount'] = message.text
+        data['puffs'] = message.text
     await ProductFSM.next()
     await message.answer(
-        'Введите описание:',
+        'Введите описание:'
+        '\nПример: Yuoto Bubble - это легкий портативный '
+        'одноразовый вейп, заполненный 10 мл ароматной жидкости...',
     )
 
 
@@ -65,13 +62,40 @@ async def set_product_desc(message: Message, state: FSMContext):
         data['description'] = message.text
     await ProductFSM.next()
     await message.answer(
-        'Введите артикул:',
+        'Введите артикул:'
+        '\nПример: 1970-4',
     )
 
 
 async def set_product_vendor(message: Message, state: FSMContext):
     async with state.proxy() as data:
         data['vendor_code'] = message.text
+    await db_create_product(state)
+    await state.finish()
+
+
+async def add_taste(callback: CallbackQuery):
+    await TasteFSM.taste.set()
+    await callback.message.edit_text(
+        'Введите название вкуса:'
+        '\nПример: Клубника',
+    )
+    await callback.answer()
+
+
+async def set_taste_title(message: Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['taste'] = message.text
+    await TasteFSM.next()
+    await message.answer(
+        'Введите количество вкуса на складе:'
+        '\nПример: 70',
+    )
+
+
+async def set_num_of_flavors_in_stock(message: Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['num_of_flavors_in_stock'] = message.text
     await db_create_product(state)
     await state.finish()
 
@@ -91,11 +115,11 @@ def register_admin(dp: Dispatcher):
         state=None
     )
     dp.register_message_handler(set_product_title, state=ProductFSM.title)
-    dp.register_message_handler(set_product_puffs, state=ProductFSM.puffs)
     dp.register_message_handler(set_product_price, state=ProductFSM.price)
-    dp.register_message_handler(set_product_amount, state=ProductFSM.amount)
+    dp.register_message_handler(set_product_puffs, state=ProductFSM.puffs)
     dp.register_message_handler(set_product_desc, state=ProductFSM.description)
     dp.register_message_handler(set_product_vendor, state=ProductFSM.vendor_code)
+    # dp.register_message_handler(set_product_amount, state=ProductFSM.num_of_flavors_in_stock)
     dp.register_message_handler(cancel_handler, commands='отмена', state='*')
     dp.register_message_handler(
         cancel_handler,

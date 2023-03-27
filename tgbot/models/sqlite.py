@@ -9,10 +9,8 @@ async def db_start():
     cur.execute(
         'CREATE TABLE IF NOT EXISTS'
         ' user('
-        ' id INTEGER PRIMARY KEY AUTOINCREMENT,'
-        ' user_id INT,'
-        ' username TEXT,'
-        ' UNIQUE(user_id)'
+        ' user_id INTEGER PRIMARY KEY AUTOINCREMENT,'
+        ' username TEXT'
         ')'
     )
     cur.execute(
@@ -20,9 +18,8 @@ async def db_start():
         ' product('
         ' product_id INTEGER PRIMARY KEY AUTOINCREMENT,'
         ' title TEXT,'
-        ' price TEXT,'
+        ' price INT,'
         ' puffs INT,'
-        ' taste INT,'
         ' description TEXT,'
         ' vendor_code TEXT'
         ')'
@@ -58,7 +55,7 @@ async def db_start():
     )
     cur.execute(
         'CREATE TABLE IF NOT EXISTS'
-        ' order('
+        ' user_order('
         ' order_id INTEGER PRIMARY KEY AUTOINCREMENT,'
         ' quantity_in_order INT,'
         ' product_id INT,'
@@ -80,17 +77,20 @@ async def db_create_product(state):
             ' VALUES (?, ?, ?, ?, ?)',
             tuple(data.values())
         )
+    db.commit()
+
+
+async def db_create_taste(state):
+    async with state.proxy() as data:
         cur.execute(
-            'INSERT INTO taste(taste)'
-            ' VALUES (?)',
+            'INSERT INTO taste('
+            'title, price,'
+            ' puffs, description,'
+            ' vendor_code)'
+            ' VALUES (?, ?, ?, ?, ?)',
             tuple(data.values())
         )
-        cur.execute(
-            'INSERT INTO product_taste(taste)'
-            ' VALUES (?)',
-            tuple(data.values())
-        )
-        db.commit()
+    db.commit()
 
 
 async def db_add_to_basket(data):

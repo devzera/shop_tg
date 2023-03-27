@@ -6,20 +6,20 @@ def user_menu_ikb() -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    'Каталог товаров',
+                    '🎫 Каталог товаров',
                     callback_data='get_catalog'
                 )
             ],
             [
                 InlineKeyboardButton(
-                    'Заказы',
+                    '🧾 Заказы',
                     callback_data='get_orders'
                 ),
                 InlineKeyboardButton(
-                    'Корзина',
+                    '🛒 Корзина',
                     callback_data='get_basket'
                 )
-            ],
+            ]
         ]
     )
     return ikb
@@ -36,18 +36,58 @@ def admin_menu_ikb() -> InlineKeyboardMarkup:
             ],
             [
                 InlineKeyboardButton(
-                    '🛒 Заказы',
+                    '🧾 Заказы',
                     callback_data='get_orders'
                 ),
                 InlineKeyboardButton(
-                    '⭐ Корзина',
+                    '🛒 Корзина',
                     callback_data='get_basket'
                 )
             ],
             [
                 InlineKeyboardButton(
-                    'Админка',
+                    '👑 Добавить товар(админка)',
                     callback_data='get_admin_panel'
+                )
+            ],
+        ]
+    )
+    return ikb
+
+
+def catalog_menu_ikb(product_id) -> InlineKeyboardMarkup:
+    ikb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    '🛒️ Добавить в корзину',
+                    callback_data=f'add_to_basket_{product_id}'
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    '🍬 Добавить вкус(админка)',
+                    callback_data=f'add_taste_{product_id}'
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    '◀️',
+                    callback_data='get_catalog_previous'
+                ),
+                InlineKeyboardButton(
+                    'Поиск',
+                    callback_data='gett'
+                ),
+                InlineKeyboardButton(
+                    '▶️',
+                    callback_data='get_catalog_next'
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    '🔙 Назад',
+                    callback_data='get_menu'
                 )
             ],
         ]
@@ -89,49 +129,15 @@ def basket_ikb(for_btn) -> InlineKeyboardMarkup:
 
     ikb.add(
         InlineKeyboardButton(
-            'Оплатить',
+            '💴 Оплатить',
             callback_data='get_menu'
         )
     )
     ikb.add(
         InlineKeyboardButton(
-            'Назад',
+            '🔙 Назад',
             callback_data='get_menu'
         )
     )
 
-    return ikb
-
-
-def catalog_menu_ikb(product_id) -> InlineKeyboardMarkup:
-    ikb = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    '⭐️ Добавить в корзину',
-                    callback_data=f'add_to_basket_{product_id}'
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    '◀️',
-                    callback_data='get_catalog_previous'
-                ),
-                InlineKeyboardButton(
-                    'Поиск',
-                    callback_data='gett'
-                ),
-                InlineKeyboardButton(
-                    '▶️',
-                    callback_data='get_catalog_next'
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    'Назад',
-                    callback_data='adada'
-                )
-            ],
-        ]
-    )
     return ikb

@@ -16,6 +16,16 @@ async def user_start(message: Message):
     )
 
 
+async def menu(callback: CallbackQuery):
+    await callback.message.edit_text(
+        f'YuotoBot - это бот, который'
+        f' позволяет заказать продукцию'
+        f' компании YUOTO',
+        reply_markup=user_menu_ikb()
+    )
+    await callback.answer()
+
+
 count = 0
 
 
@@ -64,11 +74,10 @@ async def get_product_catalog(callback: CallbackQuery):
 
     text = (
         f'Название: {catalog[1]}'
-        f'\nЦена: {catalog[3]}'
-        f'\nКоличество затяжек: {catalog[2]}'
-        f'\nКоличество товара: {catalog[4]}'
-        f'\nОписание: {catalog[5]}'
-        f'\nАртикул: {catalog[6]}'
+        f'\nЦена: {catalog[2]}'
+        f'\nКоличество затяжек: {catalog[3]}'
+        f'\nОписание: {catalog[4]}'
+        f'\nАртикул: {catalog[5]}'
     )
 
     await callback.message.edit_text(
@@ -140,5 +149,9 @@ def register_user(dp: Dispatcher):
     dp.register_callback_query_handler(
         set_basket,
         lambda callback_query: callback_query.data.startswith('set_basket')
+    )
+    dp.register_callback_query_handler(
+        menu,
+        lambda callback_query: callback_query.data == 'get_menu'
     )
     dp.register_message_handler(user_start, commands=["start"], state="*")
