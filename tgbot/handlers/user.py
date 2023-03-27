@@ -61,7 +61,7 @@ def basket(products):
 
 async def get_product_catalog(callback: CallbackQuery):
     global count
-    catalog = await sql_read()
+    products = await sql_read()
 
     arrow = callback.data.split('_')[-1]
 
@@ -70,21 +70,36 @@ async def get_product_catalog(callback: CallbackQuery):
     elif arrow == 'previous':
         count -= 1
 
-    catalog = catalog[count % len(catalog)]
+    product = products[count % len(products)]
 
     text = (
-        f'Название: {catalog[1]}'
-        f'\nЦена: {catalog[2]}'
-        f'\nКоличество затяжек: {catalog[3]}'
-        f'\nОписание: {catalog[4]}'
-        f'\nАртикул: {catalog[5]}'
+        f'Название: {product[1]}'
+        f'\nЦена: {product[2]}'
+        f'\nКоличество затяжек: {product[3]}'
+        f'\nОписание: {product[4]}'
+        f'\nАртикул: {product[5]}'
     )
+
+    taste_list = [{'product_id': product[0]}]
+    for taste in products:
+        data = {
+            'quantity_in_stock': taste[-3],
+            'taste_id': taste[-2],
+            'taste_title': taste[-1]
+        }
+        taste_list.append(data)
 
     await callback.message.edit_text(
         text,
-        reply_markup=catalog_menu_ikb(catalog[0])
+        reply_markup=catalog_menu_ikb(taste_list)
     )
     await callback.answer()
+
+
+async def get_taste(callback: CallbackQuery):
+    product_id = callback.data.split('_')[-3]
+    quantity_in_stock = callback.data.split('_')[-2]
+    taste_id = callback.data.split('_')[-1]
 
 
 async def add_to_basket(callback: CallbackQuery):
@@ -137,6 +152,10 @@ def register_user(dp: Dispatcher):
     dp.register_callback_query_handler(
         get_product_catalog,
         lambda callback_query: callback_query.data.startswith('get_catalog')
+    )
+    dp.register_callback_query_handler(
+        get_taste,
+        lambda callback_query: callback_query.data.startswith('set_basket')
     )
     dp.register_callback_query_handler(
         add_to_basket,

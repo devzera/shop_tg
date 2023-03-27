@@ -55,43 +55,53 @@ def admin_menu_ikb() -> InlineKeyboardMarkup:
     return ikb
 
 
-def catalog_menu_ikb(product_id) -> InlineKeyboardMarkup:
-    ikb = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    '🛒️ Добавить в корзину',
-                    callback_data=f'add_to_basket_{product_id}'
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    '🍬 Добавить вкус(админка)',
-                    callback_data=f'add_taste_{product_id}'
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    '◀️',
-                    callback_data='get_catalog_previous'
-                ),
-                InlineKeyboardButton(
-                    'Поиск',
-                    callback_data='gett'
-                ),
-                InlineKeyboardButton(
-                    '▶️',
-                    callback_data='get_catalog_next'
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    '🔙 Назад',
-                    callback_data='get_menu'
-                )
-            ],
-        ]
+def catalog_menu_ikb(data) -> InlineKeyboardMarkup:
+    ikb = InlineKeyboardMarkup(row_width=5)
+
+    for taste in data[1:]:
+        ikb.insert(
+            InlineKeyboardButton(
+                taste['taste_title'],
+                callback_data=f'get_taste'
+                              f'_{data[0]["product_id"]}'
+                              f'_{taste["quantity_in_stock"]}'
+                              f'_{taste["taste_id"]}'
+            )
+        )
+
+    ikb.add(
+        InlineKeyboardButton(
+            '🛒️ Добавить в корзину',
+            callback_data=f'add_to_basket_{data[0]["product_id"]}'
+        )
     )
+    ikb.add(
+        InlineKeyboardButton(
+            '🍬 Добавить вкус(админка)',
+            callback_data=f'add_taste_{data[0]["product_id"]}'
+        )
+    )
+    ikb.row(
+        InlineKeyboardButton(
+            '◀️',
+            callback_data='get_catalog_previous'
+        ),
+        InlineKeyboardButton(
+            'Поиск',
+            callback_data='search_product'
+        ),
+        InlineKeyboardButton(
+            '▶️',
+            callback_data='get_catalog_next'
+        )
+    )
+    ikb.add(
+        InlineKeyboardButton(
+            '🔙 Назад',
+            callback_data='get_menu'
+        )
+    )
+
     return ikb
 
 

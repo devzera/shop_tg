@@ -5,7 +5,7 @@ from aiogram.types import CallbackQuery, Message
 
 from tgbot.keyboards.inline import admin_menu_ikb
 from tgbot.misc.states import ProductFSM, TasteFSM
-from tgbot.models.sqlite import db_create_product
+from tgbot.models.sqlite import db_create_product, db_create_taste
 
 
 async def admin_start(message: Message):
@@ -74,7 +74,12 @@ async def set_product_vendor(message: Message, state: FSMContext):
     await state.finish()
 
 
+product_id = None
+
+
 async def add_taste(callback: CallbackQuery):
+    global product_id
+    product_id = callback.data.split('_')[-1]
     await TasteFSM.taste.set()
     await callback.message.edit_text(
         'Введите название вкуса:'
@@ -96,7 +101,8 @@ async def set_taste_title(message: Message, state: FSMContext):
 async def set_num_of_flavors_in_stock(message: Message, state: FSMContext):
     async with state.proxy() as data:
         data['num_of_flavors_in_stock'] = message.text
-    await db_create_product(state)
+        data['product_id'] = product_id
+    await db_create_taste(state)
     await state.finish()
 
 
@@ -119,7 +125,16 @@ def register_admin(dp: Dispatcher):
     dp.register_message_handler(set_product_puffs, state=ProductFSM.puffs)
     dp.register_message_handler(set_product_desc, state=ProductFSM.description)
     dp.register_message_handler(set_product_vendor, state=ProductFSM.vendor_code)
-    # dp.register_message_handler(set_product_amount, state=ProductFSM.num_of_flavors_in_stock)
+    dp.register_callback_query_handler(
+        add_taste,
+        lambda callback_query: callback_query.data.startswith('add_taste'),
+        state=None
+    )
+    dp.register_message_handler(set_taste_title, state=TasteFSM.taste)
+    dp.register_message_handler(
+        set_num_of_flavors_in_stock,
+        state=TasteFSM.num_of_flavors_in_stock
+    )
     dp.register_message_handler(cancel_handler, commands='отмена', state='*')
     dp.register_message_handler(
         cancel_handler,

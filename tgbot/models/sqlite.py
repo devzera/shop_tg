@@ -82,14 +82,25 @@ async def db_create_product(state):
 
 async def db_create_taste(state):
     async with state.proxy() as data:
+        data = tuple(data.values())
+        taste_title = data[0]
+        num_of_flavors_in_stock = data[1]
+        product_id = data[2]
+
         cur.execute(
-            'INSERT INTO taste('
-            'title, price,'
-            ' puffs, description,'
-            ' vendor_code)'
-            ' VALUES (?, ?, ?, ?, ?)',
-            tuple(data.values())
+            'INSERT INTO taste(taste)'
+            ' VALUES (?)',
+            (taste_title, )
         )
+        taste_id = cur.lastrowid
+
+        cur.execute(
+            'INSERT INTO product_taste('
+            'quantity_in_stock, product_id, taste_id)'
+            ' VALUES (?, ?, ?)',
+            (num_of_flavors_in_stock, product_id, taste_id)
+        )
+
     db.commit()
 
 
@@ -104,7 +115,33 @@ async def db_add_to_basket(data):
 
 
 async def sql_read():
-    return cur.execute('SELECT * FROM product').fetchall()
+    return cur.execute(
+        'SELECT product.product_id, product.title,'
+        ' product.price, product.puffs,'
+        ' product.description, product.vendor_code,'
+        ' product_taste.quantity_in_stock,'
+        ' taste.taste_id, taste.taste'
+        ' FROM product_taste'
+        ' INNER JOIN product ON'
+        ' product_taste.product_id = product.product_id'
+        ' INNER JOIN taste ON'
+        ' product_taste.taste_id = taste.taste_id'
+    ).fetchall()
+
+
+async def sql():
+    return cur.execute(
+        'SELECT product.product_id, product.title,'
+        ' product.price, product.puffs,'
+        ' product.description, product.vendor_code,'
+        ' product_taste.quantity_in_stock,'
+        ' taste.taste_id, taste.taste'
+        ' FROM product_taste'
+        ' INNER JOIN product ON'
+        ' product_taste.product_id = product.product_id'
+        ' INNER JOIN taste ON'
+        ' product_taste.taste_id = taste.taste_id'
+    ).fetchall()
 
 
 async def db_get_basket(user_id):
