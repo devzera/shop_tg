@@ -57,24 +57,20 @@ def admin_menu_ikb() -> InlineKeyboardMarkup:
 
 def catalog_menu_ikb(data) -> InlineKeyboardMarkup:
     ikb = InlineKeyboardMarkup(row_width=5)
+    print(data)
+    if len(data) > 1:
 
-    for taste in data[1:]:
-        ikb.insert(
-            InlineKeyboardButton(
-                taste['taste_title'],
-                callback_data=f'get_taste'
-                              f'_{data[0]["product_id"]}'
-                              f'_{taste["quantity_in_stock"]}'
-                              f'_{taste["taste_id"]}'
+        for taste in data[1:]:
+            ikb.insert(
+                InlineKeyboardButton(
+                    taste['taste_title'],
+                    callback_data=f'get_taste'
+                                  f'_{data[0]["product_id"]}'
+                                  f'_{taste["quantity_in_stock"]}'
+                                  f'_{taste["taste_id"]}'
+                )
             )
-        )
 
-    ikb.add(
-        InlineKeyboardButton(
-            '🛒️ Добавить в корзину',
-            callback_data=f'add_to_basket_{data[0]["product_id"]}'
-        )
-    )
     ikb.add(
         InlineKeyboardButton(
             '🍬 Добавить вкус(админка)',
@@ -102,6 +98,32 @@ def catalog_menu_ikb(data) -> InlineKeyboardMarkup:
         )
     )
 
+    return ikb
+
+
+def taste_ikb(data) -> InlineKeyboardMarkup:
+    ikb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    '🛒️ Добавить в корзину',
+                    callback_data=f'add_to_basket_{data}'
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    'Изменить(админка)',
+                    callback_data='get_orders'
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    '🔙 Назад',
+                    callback_data='get_catalog'
+                )
+            ],
+        ]
+    )
     return ikb
 
 

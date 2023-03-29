@@ -1,7 +1,7 @@
 from aiogram import Dispatcher
 from aiogram.types import CallbackQuery, Message
 
-from tgbot.keyboards.inline import basket_ikb, catalog_menu_ikb, user_menu_ikb
+from tgbot.keyboards.inline import basket_ikb, catalog_menu_ikb, user_menu_ikb, taste_ikb
 from tgbot.models.sqlite import (db_add_to_basket, db_dec_amount_product,
                                  db_del_amount_product, db_get_basket,
                                  db_inc_amount_product, sql, sql_read)
@@ -79,15 +79,17 @@ async def get_product_catalog(callback: CallbackQuery):
         f'\nОписание: {product[4]}'
         f'\nАртикул: {product[5]}'
     )
-
+    print(products)
+    print(product[-1])
     taste_list = [{'product_id': product[0]}]
-    for taste in products:
-        data = {
-            'quantity_in_stock': taste[-3],
-            'taste_id': taste[-2],
-            'taste_title': taste[-1]
-        }
-        taste_list.append(data)
+    if product[-1]:
+        for taste in products:
+            data = {
+                'quantity_in_stock': taste[-3],
+                'taste_id': taste[-2],
+                'taste_title': taste[-1]
+            }
+            taste_list.append(data)
 
     await callback.message.edit_text(
         text,
@@ -102,6 +104,7 @@ async def get_taste(callback: CallbackQuery):
     taste_id = callback.data.split('_')[-1]
     data = (product_id, taste_id)
     taste = await sql(data)
+    taste = taste[0]
 
     text = (
         f'Название: {taste[1]}'
@@ -109,10 +112,12 @@ async def get_taste(callback: CallbackQuery):
         f'\nКоличество затяжек: {taste[3]}'
         f'\nОписание: {taste[4]}'
         f'\nАртикул: {taste[5]}'
+        f'\nКоличество на складе: {taste[6]}'
     )
 
     await callback.message.edit_text(
-        text
+        text,
+        reply_markup=taste_ikb(product_id)
     )
     await callback.answer()
 
@@ -170,7 +175,7 @@ def register_user(dp: Dispatcher):
     )
     dp.register_callback_query_handler(
         get_taste,
-        lambda callback_query: callback_query.data.startswith('set_basket')
+        lambda callback_query: callback_query.data.startswith('get_taste')
     )
     dp.register_callback_query_handler(
         add_to_basket,

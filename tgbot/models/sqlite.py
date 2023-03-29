@@ -124,23 +124,24 @@ async def db_add_to_basket(data):
 
 
 async def sql_read():
+
     return cur.execute(
         'SELECT product.product_id, product.title,'
         ' product.price, product.puffs,'
         ' product.description, product.vendor_code,'
         ' product_taste.quantity_in_stock,'
         ' taste.taste_id, taste.taste'
-        ' FROM product_taste'
-        ' INNER JOIN product ON'
-        ' product_taste.product_id = product.product_id'
-        ' INNER JOIN taste ON'
+        ' FROM product'
+        ' LEFT JOIN product_taste ON'
+        ' product.product_id = product_taste.product_id'
+        ' LEFT JOIN taste ON'
         ' product_taste.taste_id = taste.taste_id'
     ).fetchall()
 
 
 async def sql(data):
-    return cur.execute(
-        'SELECT taste.product_id, product.title,'
+    taste_queryset = cur.execute(
+        'SELECT product.product_id, product.title,'
         ' product.price, product.puffs,'
         ' product.description, product.vendor_code,'
         ' product_taste.quantity_in_stock,'
@@ -154,6 +155,8 @@ async def sql(data):
         ' AND product_taste.taste_id = ?',
         data
     ).fetchall()
+
+    return taste_queryset
 
 
 async def db_get_basket(user_id):
