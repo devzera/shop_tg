@@ -4,7 +4,7 @@ from aiogram.types import CallbackQuery, Message
 from tgbot.keyboards.inline import basket_ikb, catalog_menu_ikb, user_menu_ikb
 from tgbot.models.sqlite import (db_add_to_basket, db_dec_amount_product,
                                  db_del_amount_product, db_get_basket,
-                                 db_inc_amount_product, sql_read)
+                                 db_inc_amount_product, sql, sql_read)
 
 
 async def user_start(message: Message):
@@ -100,6 +100,21 @@ async def get_taste(callback: CallbackQuery):
     product_id = callback.data.split('_')[-3]
     quantity_in_stock = callback.data.split('_')[-2]
     taste_id = callback.data.split('_')[-1]
+    data = (product_id, taste_id)
+    taste = await sql(data)
+
+    text = (
+        f'Название: {taste[1]}'
+        f'\nЦена: {taste[2]}'
+        f'\nКоличество затяжек: {taste[3]}'
+        f'\nОписание: {taste[4]}'
+        f'\nАртикул: {taste[5]}'
+    )
+
+    await callback.message.edit_text(
+        text
+    )
+    await callback.answer()
 
 
 async def add_to_basket(callback: CallbackQuery):

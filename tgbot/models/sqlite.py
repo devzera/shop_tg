@@ -87,12 +87,21 @@ async def db_create_taste(state):
         num_of_flavors_in_stock = data[1]
         product_id = data[2]
 
-        cur.execute(
-            'INSERT INTO taste(taste)'
-            ' VALUES (?)',
-            (taste_title, )
-        )
-        taste_id = cur.lastrowid
+        taste_created = cur.execute(
+            'SELECT taste_id, taste_title FROM taste'
+            ' WHERE taste = ?',
+            (taste_title,)
+        ).fetchall()
+
+        if not taste_created:
+
+            cur.execute(
+                'INSERT INTO taste(taste)'
+                ' VALUES (?)',
+                (taste_title, )
+            )
+
+        taste_id = taste_created[0] or cur.lastrowid
 
         cur.execute(
             'INSERT INTO product_taste('
@@ -129,9 +138,9 @@ async def sql_read():
     ).fetchall()
 
 
-async def sql():
+async def sql(data):
     return cur.execute(
-        'SELECT product.product_id, product.title,'
+        'SELECT taste.product_id, product.title,'
         ' product.price, product.puffs,'
         ' product.description, product.vendor_code,'
         ' product_taste.quantity_in_stock,'
@@ -141,6 +150,9 @@ async def sql():
         ' product_taste.product_id = product.product_id'
         ' INNER JOIN taste ON'
         ' product_taste.taste_id = taste.taste_id'
+        ' WHERE product_taste.product_id = ? '
+        ' AND product_taste.taste_id = ?',
+        data
     ).fetchall()
 
 
