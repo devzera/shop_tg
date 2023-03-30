@@ -79,8 +79,6 @@ async def get_product_catalog(callback: CallbackQuery):
         f'\nОписание: {product[4]}'
         f'\nАртикул: {product[5]}'
     )
-    print(products)
-    print(product[-1])
     taste_list = [{'product_id': product[0]}]
     if product[-1]:
         for taste in products:
