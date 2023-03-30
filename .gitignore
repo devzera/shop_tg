@@ -63,4 +63,4 @@ venv.bak/
 .env
 
 # Databases
-yo.db
+*.db
